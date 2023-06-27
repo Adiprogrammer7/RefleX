@@ -1,0 +1,31 @@
+/* for 'text_editor.html' */
+.active-button {
+	background-color: #e9ecef;
+}
+
+#editor-btn {
+	margin-bottom: 10px;
+}
+
+#editor-btn .btn {
+	border-radius: 50%;
+	margin-right: 5px;
+	background-color: #f8f9fa;
+	color: #495057;
+	transition: background-color 0.3s ease;
+}
+
+#editor-btn .btn:hover {
+	background-color: #e9ecef;
+}
+
+#editor-btn .bi {
+	font-size: 1.6rem;
+}
+
+#editor {
+	border: 1px solid #ccc;
+	padding: 10px;
+	font-family:Verdana, sans-serif;
+	background-color: #f8f9fa;
+}

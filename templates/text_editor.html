@@ -1,0 +1,47 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="btn-group my-2 mt-4" id="editor-btn" role="group">
+	<button class="btn btn-sm" id="boldBtn" onclick="toggleFormatting('bold')" title="Bold">
+		<i class="bi bi-type-bold"></i>
+	</button>
+	<button class="btn btn-sm" id="italicBtn" onclick="toggleFormatting('italic')" title="Italic">
+		<i class="bi bi-type-italic"></i>
+	</button>
+	<button class="btn btn-sm" id="underlineBtn" onclick="toggleFormatting('underline')" title="Underline">
+		<i class="bi bi-type-underline"></i>
+	</button>
+	<button class="btn btn-sm" id="strikethroughBtn" onclick="toggleFormatting('strikethrough')" title="Strikethrough">
+		<i class="bi bi-type-strikethrough"></i>
+	</button>
+	<button class="btn btn-sm" id="insertUnorderedListBtn" onclick="toggleFormatting('insertUnorderedList')" title="Unordered List">
+		<i class="bi bi-list-ul"></i>
+	</button>
+	<button class="btn btn-sm" id="insertOrderedListBtn" onclick="toggleFormatting('insertOrderedList')" title="Ordered List">
+		<i class="bi bi-list-ol"></i>	
+	</button>
+	<button class="btn btn-sm" id="justifyLeftBtn" onclick="toggleFormatting('justifyLeft')" title="Justify Left">
+		<i class="bi bi-text-left"></i>
+	</button>
+	<button class="btn btn-sm" id="justifyCenterBtn" onclick="toggleFormatting('justifyCenter')" title="Justify justifyCenter">
+		<i class="bi bi-text-center"></i>
+	</button>
+	<button class="btn btn-sm" id="justifyRightBtn" onclick="toggleFormatting('justifyRight')" title="Justify Right">
+		<i class="bi bi-text-right"></i>
+	</button>
+	<button class="btn btn-sm" id="undoBtn" onclick="toggleFormatting('undo')" title="Undo">
+		<i class="bi bi-arrow-counterclockwise"></i>
+	</button>
+	<button class="btn btn-sm" id="redoBtn" onclick="toggleFormatting('redo')" title="Redo">
+		<i class="bi bi-arrow-clockwise"></i>
+	</button>
+	<button class="btn btn-sm" id="createLinkBtn" onclick="addLink()" title="Add Link">
+		<i class="bi bi-link-45deg"></i>
+	</button>
+</div>
+
+<div contenteditable="true" id="editor" style="border: 1px solid #ccc; padding: 10px;">
+	<!-- text editor content -->
+	
+</div>
+{% endblock %}
