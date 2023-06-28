@@ -1,31 +1,56 @@
 /* for 'text_editor.html' */
+
+.diary-title {
+	margin-top: 50px;	
+}
+
+.title-input {
+	font-family: 'Trebuchet MS', 'Lucida Grande', Arial;
+	font-size: 2rem;
+	border: none;
+	width: 100%;
+	padding: 10px;
+	border-bottom: 2px solid #e3e8ee;
+}
+
+.title-input:focus{
+	outline: none;
+}
+
 .active-button {
 	background-color: #e9ecef;
 }
 
-#editor-btn {
-	margin-bottom: 10px;
+#editor{
+	margin-top: 2%;
+	background-color: #f8f9fa;
 }
 
-#editor-btn .btn {
+#editor-toolbar {
+	width: 100%;
+	padding: 4px;
+	border: 1px solid #495057;
+}
+
+#editor-toolbar .btn {
 	border-radius: 50%;
-	margin-right: 5px;
+	margin-right: 7px;
 	background-color: #f8f9fa;
 	color: #495057;
 	transition: background-color 0.3s ease;
 }
 
-#editor-btn .btn:hover {
-	background-color: #e9ecef;
+#editor-toolbar .btn:hover {
+	background-color: #e0e3e6;
 }
 
-#editor-btn .bi {
+#editor-toolbar .bi {
 	font-size: 1.6rem;
 }
 
-#editor {
-	border: 1px solid #ccc;
+#diary-content {
 	padding: 10px;
-	font-family:Verdana, sans-serif;
-	background-color: #f8f9fa;
+	font-family: Verdana, sans-serif;
+	box-sizing: border-box;
+	height: 400px;
 }
