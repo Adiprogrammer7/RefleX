@@ -1,6 +1,7 @@
 from flask import Flask, render_template, redirect, flash, url_for
 from pymongo import MongoClient
 from flask_bcrypt import Bcrypt
+from flask_login import LoginManager
 from dotenv import load_dotenv
 import os
 from forms import RegistrationForm, LoginForm
@@ -14,11 +15,11 @@ secret_key = os.getenv('SECRET_KEY')
 app = Flask(__name__)
 app.config['SECRET_KEY'] = secret_key
 bcrypt = Bcrypt(app)
+login_manager = LoginManager(app)
 
 # MongoDB stuff
 client = MongoClient(mongodb_uri)
 db = client['reflex_db']
-
 
 @app.route("/")
 def home():
@@ -30,7 +31,7 @@ def new_entry():
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
-	form = RegistrationForm()
+	form = RegistrationForm(db) # Passing the db object to the form
 	if form.validate_on_submit():
 		# encrypting the password
 		hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
