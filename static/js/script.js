@@ -3,7 +3,7 @@ var flash_div = document.getElementById("flash_div");
 if (flash_div) {
 	setTimeout(function () {
 		flash_div.style.display = "none";
-	}, 5000); // Hide the div after 5 seconds
+	}, 10000); // Hide the div after 10 seconds
 }
 
 // for 'text_editor.html'

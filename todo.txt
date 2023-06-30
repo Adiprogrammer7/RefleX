@@ -1,2 +1,3 @@
-- file structure according to diagrams
+- unique username functionality
 - user authentication
+
