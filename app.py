@@ -1,7 +1,8 @@
 from flask import Flask, render_template, redirect, flash, url_for
 from pymongo import MongoClient
 from flask_bcrypt import Bcrypt
-from flask_login import LoginManager
+from flask_login import LoginManager, login_user, logout_user, current_user, login_required, UserMixin
+from bson import ObjectId
 from dotenv import load_dotenv
 import os
 from forms import RegistrationForm, LoginForm
@@ -16,12 +17,35 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = secret_key
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
+login_manager.login_view = 'login'
+login_manager.login_message_category = 'info'
 
 # MongoDB stuff
 client = MongoClient(mongodb_uri)
 db = client['reflex_db']
 
+# User class that satisfies the requirements of Flask-Login. The User class should inherit from UserMixin, which provides default implementations for the required methods.
+class User(UserMixin):
+	def __init__(self, user_id, username, email):
+		self.id = user_id
+		self.username = username
+		self.email = email
+
+	# This method is required by Flask-Login's UserMixin class. It returns the string representation of the user's ID, which is used for user authentication and session management.
+	def get_id(self):
+		return str(self.id)
+
+#  user loader function that Flask-Login will use to load the user from the database based on the user ID
+@login_manager.user_loader
+def load_user(user_id):
+	# Query the database to find the user by ID
+	user = db.user.find_one({'_id': ObjectId(user_id)})
+	# Return the user object
+	return User(user['_id'], user['username'], user['email'])
+
+
 @app.route("/")
+@login_required
 def home():
 	return render_template('index.html')
 
@@ -31,6 +55,8 @@ def new_entry():
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
+	if current_user.is_authenticated:
+		return redirect(url_for('home'))
 	form = RegistrationForm(db) # Passing the db object to the form
 	if form.validate_on_submit():
 		# encrypting the password
@@ -50,15 +76,27 @@ def register():
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
+	if current_user.is_authenticated:
+		return redirect(url_for('home'))
 	form = LoginForm()
 	if form.validate_on_submit():
-		current_user = db.user.find_one({'username': form.username.data})
-		if current_user and bcrypt.check_password_hash(current_user['password'], form.password.data):
+		user = db.user.find_one({'username': form.username.data})
+		if user and bcrypt.check_password_hash(user['password'], form.password.data):
+			# Create a User object from the retrieved data
+			user_obj = User(user['_id'], user['username'], user['email'])
+			login_user(user_obj, remember=form.remember.data)  # Login the user
 			flash('You have been logged in!', 'success')
 			return redirect(url_for('home'))
 		else:
 			flash('Login Unsuccessful. Please check username and password', 'danger')
 	return render_template('login.html', form=form)
+
+@app.route("/logout")
+@login_required
+def logout():
+	logout_user()  
+	flash('You have been logged out!', 'success')
+	return redirect(url_for('login'))
 
 if __name__ == '__main__':
 	app.run(debug=True)

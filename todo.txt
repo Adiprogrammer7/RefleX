@@ -1,3 +1,2 @@
-- unique username functionality
-- user authentication
-
+- split code into modules and packages
+- create diary
