@@ -1,5 +1,12 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<p>Hello, World!</p>
+{% if entries %}
+	{% for entry in entries %}
+		<h3>{{ entry.diary_title }}</h3>
+		<p class="text-body-secondary">Created: {{ entry.diary_created.strftime("%d/%m/%Y %H:%M") }} Tag: {{ entry.diary_tag }}</p>
+		<div>{{ entry.diary_content }}</div>
+		<hr class="border border-primary border-2 opacity-50">
+	{% endfor %}
+{% endif %}
 {% endblock content %}

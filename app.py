@@ -1,8 +1,9 @@
-from flask import Flask, render_template, redirect, flash, url_for
+from flask import Flask, render_template, redirect, flash, url_for, request
 from pymongo import MongoClient
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required, UserMixin
 from bson import ObjectId
+from datetime import datetime
 from dotenv import load_dotenv
 import os
 from forms import RegistrationForm, LoginForm
@@ -47,11 +48,35 @@ def load_user(user_id):
 @app.route("/")
 @login_required
 def home():
-	return render_template('index.html')
+	user_id = ObjectId(current_user.get_id())
+	entries = db.diary.find({'author_id': user_id})
+	return render_template('index.html', entries=entries)
 
-@app.route("/new_entry")
-def new_entry():
+@app.route("/write")
+@login_required
+def write():
 	return render_template('text_editor.html')
+
+@app.route("/save_diary", methods=['POST'])
+@login_required
+def save_diary():
+    title = request.form.get('diary_title')
+    tag = request.form.get('diary_tag')
+    content = request.form.get('diary_content')
+    create_date = datetime.now()
+    author_id = current_user.get_id()
+    new_entry = {
+	    'diary_title': title,
+	    'diary_tag': tag,
+	    'diary_content': content,
+	    'diary_created': create_date,
+	    'author_id': ObjectId(author_id)
+	}
+    print(new_entry)
+    db.diary.insert_one(new_entry)
+    flash("Diary entry has been saved!", "success")
+    return redirect(url_for('home'))
+
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
