@@ -1,12 +1,14 @@
 {% extends 'layout.html' %}
 
+{% include 'navbar.html' %}
+
 {% block content %}
-<form action="{{ url_for('save_diary') }}" method="post">
+<form action="{{ url_for('save_diary', entry_id=entry._id|string if entry else None) }}" method="post">
 	<div class="diary-title">
-		<input type="text" class="title-input" name="diary_title" placeholder="Give a name for your diary entry..." autofocus/>
+		<input type="text" class="title-input" name="diary_title" placeholder="Give a name for your diary entry..." autofocus value="{{ entry.diary_title if entry else '' }}" />
 	</div>
 	<div class="diary-tag">
-		<input type="text" class="tag-input" name="diary_tag" list="myTags" placeholder="select a tag..."/>
+		<input type="text" class="tag-input" name="diary_tag" list="myTags" placeholder="select a tag..." value="{{ entry.diary_tag if entry else '' }}" />
 		<datalist id="myTags">
 			<option value="Option 1">Option 1</option>
 			<option value="Option 2">Option 2</option>
@@ -55,7 +57,7 @@
 		</div>
 		
 		<div contenteditable="true" id="diary-content">
-			
+			{{ entry.diary_content|safe if entry else '' }}
 		</div>
 		<input type="hidden" name="diary_content" id="hidden-diary-content">	
 	</div>

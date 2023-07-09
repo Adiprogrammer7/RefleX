@@ -1,0 +1,23 @@
+<nav class="navbar navbar-expand-lg navbar-dark">
+	<div class="container">
+		<a class="navbar-brand" href="{{ url_for('home') }}">RefleX</a>
+
+		<ul class="navbar-nav ms-auto me-4">
+			<li class="nav-item">
+				<a class="nav-link" href="{{ url_for('write') }}">New Entry <i class="bi bi-file-earmark-plus"></i></a>
+			</li>
+		</ul>
+
+		<ul class="navbar-nav ml-auto">
+			<div class="dropdown-center">
+				<div class="dropdown-toggle text-light" type="button" data-bs-toggle="dropdown"
+					aria-expanded="false">
+					{{ current_user.username }}
+				</div>
+				<ul class="dropdown-menu">
+					<li><a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a></li>
+				</ul>
+			</div>
+		</ul>
+	</div>
+</nav>

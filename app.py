@@ -57,25 +57,74 @@ def home():
 def write():
 	return render_template('text_editor.html')
 
-@app.route("/save_diary", methods=['POST'])
+@app.route("/entry/<entry_id>")
 @login_required
-def save_diary():
-    title = request.form.get('diary_title')
-    tag = request.form.get('diary_tag')
-    content = request.form.get('diary_content')
-    create_date = datetime.now()
-    author_id = current_user.get_id()
-    new_entry = {
-	    'diary_title': title,
-	    'diary_tag': tag,
-	    'diary_content': content,
-	    'diary_created': create_date,
-	    'author_id': ObjectId(author_id)
-	}
-    print(new_entry)
-    db.diary.insert_one(new_entry)
-    flash("Diary entry has been saved!", "success")
-    return redirect(url_for('home'))
+def view_entry(entry_id):
+	# Retrieve the diary entry from the database based on the entry_id
+	entry = db.diary.find_one({'_id': ObjectId(entry_id)})
+
+	if entry:
+		# Render the template to display the entry content
+		return render_template('view_entry.html', entry=entry)
+	else:
+		flash("Diary entry not found.", "danger")
+		return redirect(url_for('home'))
+
+
+@app.route("/delete_entry/<entry_id>")
+@login_required
+def delete_entry(entry_id):
+	entry = db.diary.find_one({"_id": ObjectId(entry_id)})
+	print(type(entry))
+	if not entry:
+		flash("Diary entry not found!", "danger")
+		return redirect(url_for("home"))
+	
+	 # Delete the entry from the database
+	db.diary.delete_one({"_id": ObjectId(entry['_id'])})
+	flash(f"Diary entry named '{entry['diary_title']}' deleted successfully", "success")
+	return redirect(url_for("home"))
+
+@app.route("/edit_entry/<entry_id>")
+@login_required
+def edit_entry(entry_id):
+	entry = db.diary.find_one({"_id": ObjectId(entry_id)})
+	if not entry:
+		flash("Diary entry not found!", "danger")
+		return redirect(url_for("home"))
+	# render 'text_editor.html' with entry contents
+	return render_template('text_editor.html', entry=entry)
+
+
+@app.route("/save_diary/", defaults={'entry_id': None}, methods=['POST'])
+@app.route("/save_diary/<entry_id>", methods=['POST'])
+@login_required
+def save_diary(entry_id):
+	title = request.form.get('diary_title')
+	tag = request.form.get('diary_tag')
+	content = request.form.get('diary_content')
+	create_date = datetime.now()
+	author_id = current_user.get_id()
+	# Update existing entry
+	if entry_id:
+		diary_modified = datetime.now()
+		db.diary.update_one({'_id': ObjectId(entry_id)}, {'$set': {'diary_title': title, 'diary_tag': tag, 'diary_content': content, 'diary_modified': diary_modified}})
+		flash("Diary entry has been updated!", "success")
+	
+	# Create new entry
+	else:
+		new_entry = {
+			'diary_title': title,
+			'diary_tag': tag,
+			'diary_content': content,
+			'diary_created': create_date,
+			'author_id': ObjectId(author_id)
+		}
+		db.diary.insert_one(new_entry)
+		flash("Diary entry has been saved!", "success")
+	
+	return redirect(url_for('home'))
+
 
 
 @app.route("/register", methods=['GET', 'POST'])
