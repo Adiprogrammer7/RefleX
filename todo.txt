@@ -1,2 +1,3 @@
 - split code into modules and packages
-- create diary
+- book module rendering
+- time framed visualizations
