@@ -2,7 +2,6 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 
-
 class RegistrationForm(FlaskForm):
 
 	# to set the db object passed from app.py as instance variable so we can access db here
