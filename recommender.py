@@ -9,8 +9,9 @@ import requests
 import json
 
 class BookRecommender:
-	def __init__(self, content, alsoPhrases=True, api_url=r"https://www.googleapis.com/books/v1/volumes?maxResults=5&orderBy=relevance&q="):
+	def __init__(self, content, max_count=5, alsoPhrases=True, api_url=r"https://www.googleapis.com/books/v1/volumes?q="):
 		self.content = content
+		self.max_count = max_count
 		self.alsoPhrases = alsoPhrases
 		self.api_url = api_url
 		self.processed_content = None
@@ -18,7 +19,7 @@ class BookRecommender:
 		self.keywords = None
 		self.phrases = None
 		self.entities = None
-		self.necessary_fields = ["title", "authors", "description", "printType", "pageCount", "categories", "averageRating", "imageLinks"]
+		self.necessary_fields = ["title", "authors", "description", "printType", "pageCount", "categories", "averageRating", "imageLinks", "canonicalVolumeLink"]
 		self.books = []
 
 
@@ -81,9 +82,17 @@ class BookRecommender:
 		for item in data["items"]:
 			new_item = {}
 			volume_info = item.get("volumeInfo", {})
-			for field in self.necessary_fields:
-				new_item[field] = volume_info.get(field)
-			self.books.append(new_item)
+			average_rating = volume_info.get("averageRating")
+			if average_rating is not None:
+				for field in self.necessary_fields:
+					new_item[field] = volume_info.get(field)
+				self.books.append(new_item)
+
+		# Sort the books based on average rating in descending order
+		self.books = sorted(self.books, key=lambda x: x.get("averageRating", 0), reverse=True)
+
+		# Select the top self.max_count books
+		self.books = self.books[:self.max_count]
 
 
 	def fetch_results(self):

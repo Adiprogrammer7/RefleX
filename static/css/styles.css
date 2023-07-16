@@ -64,3 +64,20 @@
 .navbar{
 	background-color: #454545;
 }
+
+/* when books are rendered */
+.book_card:hover{
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+	transform: translateY(-2px);
+	cursor: pointer;
+}
+
+.book_big_card {
+	border: none;
+	box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+	transition: box-shadow 0.3s ease;
+}
+
+.book_big_card:hover {
+	box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+}

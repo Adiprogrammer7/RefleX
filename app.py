@@ -59,6 +59,19 @@ def home():
 def write():
 	return render_template('text_editor.html')
 
+@app.route('/books', methods=['GET'])
+@app.route('/books/<book_id>', methods=['GET'])
+@login_required
+def books(book_id=None):
+	if book_id:
+		book = db.books.find_one({'_id': ObjectId(book_id)})
+		return render_template('book_details.html', book=book)
+	else:
+		user_id = ObjectId(current_user.get_id())
+		books = db.books.find({'author_id': user_id})
+		return render_template('books.html', books=books)
+
+
 @app.route("/entry/<entry_id>")
 @login_required
 def view_entry(entry_id):
