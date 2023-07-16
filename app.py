@@ -7,6 +7,8 @@ from datetime import datetime
 from dotenv import load_dotenv
 import os
 from forms import RegistrationForm, LoginForm
+from recommender import BookRecommender
+from utils import extract_plaintext, save_books
 
 # Load environment variables from .env file and access them
 load_dotenv() 
@@ -105,6 +107,13 @@ def save_diary(entry_id):
 	content = request.form.get('diary_content')
 	create_date = datetime.now()
 	author_id = current_user.get_id()
+
+	# generate book recommendations and save in db
+	plaintext = extract_plaintext(content)
+	book_recommender = BookRecommender(plaintext)
+	book_recommender.fetch_results()
+	save_books(db, book_recommender.books, author_id)
+
 	# Update existing entry
 	if entry_id:
 		diary_modified = datetime.now()
@@ -124,7 +133,6 @@ def save_diary(entry_id):
 		flash("Diary entry has been saved!", "success")
 	
 	return redirect(url_for('home'))
-
 
 
 @app.route("/register", methods=['GET', 'POST'])

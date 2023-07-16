@@ -86,7 +86,7 @@ class BookRecommender:
 			self.books.append(new_item)
 
 
-	def fetch_result(self):
+	def fetch_results(self):
 		self.preprocess_content()
 		result = ""
 		result += self.extract_named_entites()
@@ -105,16 +105,12 @@ class BookRecommender:
 		print(formatted_data)
 
 
-content = '''The conversations were stimulating, and I gained valuable insights and potential collaborations. It was a reminder of the power of building a strong network and seizing opportunities.
-
-Later, I dedicated time to my personal development by reading books and articles on subjects that expand my knowledge and skills. I engaged in deep reflection, setting new goals and mapping out actionable plans to achieve them. I'm excited about the possibilities that lie ahead.
-
-In the evening, I attended a thought-provoking seminar by a renowned expert in my field. The session was enlightening, filled with valuable strategies and insights that I can apply to elevate my work and make a significant impact. It was an incredible opportunity for growth and learning.
-
-To unwind and recharge, I spent quality time with loved ones, sharing stories, laughter, and creating cherished memories. Their support and encouragement fuel my ambition even further.'''
-
-b = BookRecommender(content)
-b.fetch_result()
-print(b.keywords)
-print(b.phrases)
-print(b.entities)
+# content = '''The conversations were stimulating, and I gained valuable insights and potential collaborations. It was a reminder of the power of building a strong network and seizing opportunities.
+# Later, I dedicated time to my personal development by reading books and articles on subjects that expand my knowledge and skills. I engaged in deep reflection, setting new goals and mapping out actionable plans to achieve them. I'm excited about the possibilities that lie ahead.
+# In the evening, I attended a thought-provoking seminar by a renowned expert in my field. The session was enlightening, filled with valuable strategies and insights that I can apply to elevate my work and make a significant impact. It was an incredible opportunity for growth and learning.
+# To unwind and recharge, I spent quality time with loved ones, sharing stories, laughter, and creating cherished memories. Their support and encouragement fuel my ambition even further.'''
+# b = BookRecommender(content)
+# b.fetch_results()
+# print(b.keywords)
+# print(b.phrases)
+# print(b.entities)
