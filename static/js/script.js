@@ -22,3 +22,22 @@ function save_diary() {
 	// Set the content as the value of the hidden input field
 	document.getElementById('hidden-diary-content').value = diaryContent;
 }
+
+
+// start and end dates for 'plot.html'
+const startDateInput = document.getElementById('start_date');
+const endDateInput = document.getElementById('end_date');
+
+const today = new Date();
+const tomorrow = new Date(today);
+tomorrow.setDate(tomorrow.getDate() + 1);
+
+startDateInput.max = tomorrow.toISOString().split('T')[0];
+
+startDateInput.addEventListener('change', function () {
+    const selectedStartDate = new Date(this.value);
+    // Enable end date input and set the minimum and maximum values
+    endDateInput.disabled = false;
+    endDateInput.min = this.value;
+    endDateInput.max = tomorrow.toISOString().split('T')[0];
+});

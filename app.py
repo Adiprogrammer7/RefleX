@@ -8,7 +8,8 @@ from dotenv import load_dotenv
 import os
 from forms import RegistrationForm, LoginForm
 from recommender import BookRecommender
-from utils import extract_plaintext, save_books
+from utils import extract_plaintext, save_books, extract_emotion
+from plots import Plotter
 
 # Load environment variables from .env file and access them
 load_dotenv() 
@@ -120,17 +121,23 @@ def save_diary(entry_id):
 	content = request.form.get('diary_content')
 	create_date = datetime.now()
 	author_id = current_user.get_id()
+	plaintext = extract_plaintext(content)
+
+	# extract emotion from diary text
+	emotion = extract_emotion(plaintext)
 
 	# generate book recommendations and save in db
-	plaintext = extract_plaintext(content)
-	book_recommender = BookRecommender(plaintext)
+	book_recommender = BookRecommender(plaintext, alsoPhrases=True)
 	book_recommender.fetch_results()
+	print(book_recommender.keywords)
+	print(book_recommender.phrases)
+	print(book_recommender.entities)
 	save_books(db, book_recommender.books, author_id)
 
 	# Update existing entry
 	if entry_id:
 		diary_modified = datetime.now()
-		db.diary.update_one({'_id': ObjectId(entry_id)}, {'$set': {'diary_title': title, 'diary_tag': tag, 'diary_content': content, 'diary_modified': diary_modified}})
+		db.diary.update_one({'_id': ObjectId(entry_id)}, {'$set': {'diary_title': title, 'diary_tag': tag, 'diary_content': content, 'diary_modified': diary_modified, 'emotion': emotion}})
 		flash("Diary entry has been updated!", "success")
 	
 	# Create new entry
@@ -140,6 +147,7 @@ def save_diary(entry_id):
 			'diary_tag': tag,
 			'diary_content': content,
 			'diary_created': create_date,
+			'emotion': emotion,
 			'author_id': ObjectId(author_id)
 		}
 		db.diary.insert_one(new_entry)
@@ -147,6 +155,20 @@ def save_diary(entry_id):
 	
 	return redirect(url_for('home'))
 
+
+@app.route("/plot", methods=['GET', 'POST'])
+@login_required
+def plot():
+	if request.method == "POST":
+		start_date = request.form.get('start_date')
+		end_date = request.form.get('end_date')
+		start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+		end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+
+		plotter = Plotter(db, start_date, end_date)
+		plotter.fetch_data()
+
+	return render_template('plot.html')
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():

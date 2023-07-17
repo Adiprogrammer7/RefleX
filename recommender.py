@@ -25,7 +25,7 @@ class BookRecommender:
 
 	def preprocess_content(self):
 		# Convert the text to lowercase
-		self.content = self.content.lower()
+		self.content = self.content.lower()  
 		
 		# Tokenize the text into individual words
 		tokens = word_tokenize(self.content)
@@ -78,21 +78,24 @@ class BookRecommender:
 
 
 	def extract_book_data(self, data):
-		# to take only required fields from book api
-		for item in data["items"]:
-			new_item = {}
-			volume_info = item.get("volumeInfo", {})
-			average_rating = volume_info.get("averageRating")
-			if average_rating is not None:
-				for field in self.necessary_fields:
-					new_item[field] = volume_info.get(field)
-				self.books.append(new_item)
+		if data['totalItems'] != 0:
+			# to take only required fields from book api
+			for item in data["items"]:
+				new_item = {}
+				volume_info = item.get("volumeInfo", {})
+				average_rating = volume_info.get("averageRating")
+				if average_rating is not None:
+					for field in self.necessary_fields:
+						new_item[field] = volume_info.get(field)
+					self.books.append(new_item)
 
-		# Sort the books based on average rating in descending order
-		self.books = sorted(self.books, key=lambda x: x.get("averageRating", 0), reverse=True)
+			# Sort the books based on average rating in descending order
+			self.books = sorted(self.books, key=lambda x: x.get("averageRating", 0), reverse=True)
 
-		# Select the top self.max_count books
-		self.books = self.books[:self.max_count]
+			# Select the top self.max_count books
+			self.books = self.books[:self.max_count]
+		else:
+			print("No book results!")
 
 
 	def fetch_results(self):
@@ -109,17 +112,6 @@ class BookRecommender:
 		r = requests.get(self.api_url + self.query)
 		data = r.json()
 		self.extract_book_data(data)
-		# just to print json formatted self.books list for debugging
-		formatted_data = json.dumps(self.books, indent=4)
-		print(formatted_data)
-
-
-# content = '''The conversations were stimulating, and I gained valuable insights and potential collaborations. It was a reminder of the power of building a strong network and seizing opportunities.
-# Later, I dedicated time to my personal development by reading books and articles on subjects that expand my knowledge and skills. I engaged in deep reflection, setting new goals and mapping out actionable plans to achieve them. I'm excited about the possibilities that lie ahead.
-# In the evening, I attended a thought-provoking seminar by a renowned expert in my field. The session was enlightening, filled with valuable strategies and insights that I can apply to elevate my work and make a significant impact. It was an incredible opportunity for growth and learning.
-# To unwind and recharge, I spent quality time with loved ones, sharing stories, laughter, and creating cherished memories. Their support and encouragement fuel my ambition even further.'''
-# b = BookRecommender(content)
-# b.fetch_results()
-# print(b.keywords)
-# print(b.phrases)
-# print(b.entities)
+		# # just to print json formatted self.books list for debugging
+		# formatted_data = json.dumps(self.books, indent=4)
+		# print(formatted_data)
