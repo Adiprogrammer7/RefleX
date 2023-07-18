@@ -1,15 +1,9 @@
 /* for 'text_editor.html' */
-
-.diary-title {
-	margin-top: 50px;	
-}
-
 .title-input {
-	font-family: 'Trebuchet MS', 'Lucida Grande', Arial;
 	font-size: 2rem;
 	border: none;
 	width: 100%;
-	padding: 10px;
+	padding: 5px;
 	border-bottom: 2px solid #e3e8ee;
 }
 
@@ -17,13 +11,27 @@
 	outline: none;
 }
 
+.tag-input {
+	font-size: 1.4rem;
+    border: none;
+	width: 100%;
+    padding: 5px;
+	border-bottom: 2px solid #e3e8ee;
+}
+
+.tag-input:focus {
+    outline: none;
+}
+
 .active-button {
-	background-color: #e9ecef;
+	background-color: #c6c6c7;
 }
 
 #editor{
 	margin-top: 2%;
 	background-color: #f8f9fa;
+	box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+	transition: box-shadow 0.3s ease;
 }
 
 #editor-toolbar {
@@ -50,7 +58,7 @@
 
 #diary-content {
 	padding: 10px;
-	font-family: Verdana, sans-serif;
+	font-size: 1.2rem;
 	box-sizing: border-box;
 	height: 400px;
 }
@@ -80,4 +88,27 @@
 
 .book_big_card:hover {
 	box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+}
+
+/* for 'plot.html' */
+.chart-container {
+	border: 1px solid #e2e2e2;
+	border-radius: 3px;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+	padding: 10px;
+	background-color: #fff;
+	margin-bottom: 20px;
+}
+.chart-container:hover {
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+}
+
+/* for 'index.html' */
+.diary-card {
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    transition: box-shadow 0.3s ease;
+}
+
+.diary-card:hover {
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }

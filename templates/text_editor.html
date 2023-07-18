@@ -4,18 +4,20 @@
 
 {% block content %}
 <form action="{{ url_for('save_diary', entry_id=entry._id|string if entry else None) }}" method="post">
-	<div class="diary-title">
+
+	<div class="diary-title my-4">
 		<input type="text" class="title-input" name="diary_title" placeholder="Give a name for your diary entry..." autofocus value="{{ entry.diary_title if entry else '' }}" />
 	</div>
+
 	<div class="diary-tag">
-		<input type="text" class="tag-input" name="diary_tag" list="myTags" placeholder="select a tag..." value="{{ entry.diary_tag if entry else '' }}" />
-		<datalist id="myTags">
-			<option value="Option 1">Option 1</option>
-			<option value="Option 2">Option 2</option>
-			<option value="Option 3">Option 3</option>
-			<!-- Add more options as needed -->
+		<input type="text" class="tag-input" name="diary_tag" list="tags" placeholder="Give tag..." value="{{ entry.diary_tag if entry else '' }}" autocomplete="off" />
+		<datalist id="tags">
+			{% for tag in tags %}
+				<option value="{{ tag }}">{{ tag }}</option>
+			{% endfor %}
 		</datalist>
 	</div>
+
 	<div id="editor">
 		<div class="d-flex justify-content-start" id="editor-toolbar">
 			<button type="button" class="btn btn-sm" id="boldBtn" onclick="toggleFormatting('bold')" title="Bold">
@@ -61,7 +63,10 @@
 		</div>
 		<input type="hidden" name="diary_content" id="hidden-diary-content">	
 	</div>
-	<br>
-	<button type="submit" class="btn btn-small btn-success my-4" onclick="save_diary()">Save</button>
+
+	<div class="d-flex justify-content-end mt-2">
+		<a type="button" class="btn btn-outline-danger me-3" href="{{ url_for('home') }}">Cancel</a>
+		<button type="submit" class="btn btn-success" onclick="save_diary()">Save Entry</button>
+	</div>
 </form>
 {% endblock %}

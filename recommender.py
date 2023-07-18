@@ -6,7 +6,6 @@ import string
 import spacy
 from rake_nltk import Rake
 import requests
-import json
 
 class BookRecommender:
 	def __init__(self, content, max_count=5, alsoPhrases=True, api_url=r"https://www.googleapis.com/books/v1/volumes?q="):

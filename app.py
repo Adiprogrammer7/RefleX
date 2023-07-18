@@ -8,8 +8,7 @@ from dotenv import load_dotenv
 import os
 from forms import RegistrationForm, LoginForm
 from recommender import BookRecommender
-from utils import extract_plaintext, save_books, extract_emotion
-from plots import Plotter
+from utils import *
 
 # Load environment variables from .env file and access them
 load_dotenv() 
@@ -48,17 +47,32 @@ def load_user(user_id):
 	return User(user['_id'], user['username'], user['email'])
 
 
-@app.route("/")
+@app.route("/", methods=['GET', 'POST'])
 @login_required
 def home():
-	user_id = ObjectId(current_user.get_id())
-	entries = db.diary.find({'author_id': user_id})
-	return render_template('index.html', entries=entries)
+	tags = db.diary.distinct("diary_tag")
+	emotions = db.diary.distinct("emotion")
+
+	if request.method == 'POST':
+		filter_type = request.form.get('filter_type')
+		filter_value = request.form.get(filter_type)			
+		if filter_type == 'tag':
+			entries = db.diary.find({'diary_tag': filter_value})
+		elif filter_type == 'emotion':
+			entries = db.diary.find({'emotion': filter_value})
+		
+	else:
+		user_id = ObjectId(current_user.get_id())
+		entries = db.diary.find({'author_id': user_id})
+
+	return render_template('index.html', entries=entries, tags=tags, emotions=emotions)
+
 
 @app.route("/write")
 @login_required
 def write():
-	return render_template('text_editor.html')
+	tags = db.diary.distinct("diary_tag")
+	return render_template('text_editor.html', tags=tags)
 
 @app.route('/books', methods=['GET'])
 @app.route('/books/<book_id>', methods=['GET'])
@@ -105,11 +119,12 @@ def delete_entry(entry_id):
 @login_required
 def edit_entry(entry_id):
 	entry = db.diary.find_one({"_id": ObjectId(entry_id)})
+	tags = db.diary.distinct("diary_tag")
 	if not entry:
 		flash("Diary entry not found!", "danger")
 		return redirect(url_for("home"))
 	# render 'text_editor.html' with entry contents
-	return render_template('text_editor.html', entry=entry)
+	return render_template('text_editor.html', entry=entry, tags=tags)
 
 
 @app.route("/save_diary/", defaults={'entry_id': None}, methods=['POST'])
@@ -164,9 +179,9 @@ def plot():
 		end_date = request.form.get('end_date')
 		start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
 		end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
-
-		plotter = Plotter(db, start_date, end_date)
-		plotter.fetch_data()
+		author_id = ObjectId(current_user.get_id())
+		counts, emotions = fetch_data(db, author_id, start_date, end_date)
+		return render_template('plot.html', counts=counts, emotions=emotions)
 
 	return render_template('plot.html')
 

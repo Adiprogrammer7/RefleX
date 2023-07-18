@@ -23,21 +23,40 @@ function save_diary() {
 	document.getElementById('hidden-diary-content').value = diaryContent;
 }
 
-
 // start and end dates for 'plot.html'
 const startDateInput = document.getElementById('start_date');
 const endDateInput = document.getElementById('end_date');
 
 const today = new Date();
-const tomorrow = new Date(today);
-tomorrow.setDate(tomorrow.getDate() + 1);
-
-startDateInput.max = tomorrow.toISOString().split('T')[0];
+const todayLocalISO = today.toISOString().split('T')[0];
+startDateInput.max = todayLocalISO;
 
 startDateInput.addEventListener('change', function () {
     const selectedStartDate = new Date(this.value);
     // Enable end date input and set the minimum and maximum values
     endDateInput.disabled = false;
     endDateInput.min = this.value;
-    endDateInput.max = tomorrow.toISOString().split('T')[0];
+    endDateInput.max = todayLocalISO;
 });
+
+// for filter dropdowns in 'index.html'
+function toggleFilterOptions() {
+	var filterType = document.getElementById("filterType").value;
+	var tagFilter = document.getElementById("tagFilter");
+	var emotionFilter = document.getElementById("emotionFilter");
+
+	if (filterType === "tag") {
+		tagFilter.style.display = "block";
+		emotionFilter.style.display = "none";
+	} else if (filterType === "emotion") {
+		tagFilter.style.display = "none";
+		emotionFilter.style.display = "block";
+	} else {
+		tagFilter.style.display = "none";
+		emotionFilter.style.display = "none";
+	}
+}
+
+function submitForm() {
+	document.getElementById("filterForm").submit();
+}

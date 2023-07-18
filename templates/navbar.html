@@ -10,12 +10,13 @@
 				</div>
 				<ul class="dropdown-menu">
 					<li><a class="dropdown-item" href="{{ url_for('books') }}">View Book Recommendations</a></li>
+					<li><a class="dropdown-item" href="{{ url_for('plot') }}">Generate Visualizations</a></li>
 					<li><a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a></li>
 				</ul>
 			</div>
 		</ul>
 	
-		<ul class="navbar-nav ml-auto">
+		<ul class="navbar-nav">
 			<li class="nav-item">
 				<a class="nav-link" href="{{ url_for('write') }}">New Entry <i class="bi bi-file-earmark-plus"></i></a>
 			</li>
