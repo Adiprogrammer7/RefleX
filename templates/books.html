@@ -4,6 +4,7 @@
 
 {% block content %}
 {% if books %}
+	<h3 class="my-4">Book Recommendations: </h3>
 	<div class="container d-flex flex-wrap">
 		{% for book in books %}
 			<a href="{{ url_for('books', book_id=book._id|string) }}" class="card text-center mt-4 mx-3 book_card" style="width: 13rem; text-decoration: none;">

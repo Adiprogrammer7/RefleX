@@ -50,8 +50,9 @@ def load_user(user_id):
 @app.route("/", methods=['GET', 'POST'])
 @login_required
 def home():
-	tags = db.diary.distinct("diary_tag")
-	emotions = db.diary.distinct("emotion")
+	user_id = ObjectId(current_user.get_id())
+	tags = db.diary.distinct("diary_tag", {"author_id": user_id})
+	emotions = db.diary.distinct("emotion", {"author_id": user_id})
 
 	if request.method == 'POST':
 		filter_type = request.form.get('filter_type')
@@ -62,7 +63,6 @@ def home():
 			entries = db.diary.find({'emotion': filter_value})
 		
 	else:
-		user_id = ObjectId(current_user.get_id())
 		entries = db.diary.find({'author_id': user_id})
 
 	return render_template('index.html', entries=entries, tags=tags, emotions=emotions)
@@ -71,7 +71,8 @@ def home():
 @app.route("/write")
 @login_required
 def write():
-	tags = db.diary.distinct("diary_tag")
+	user_id = ObjectId(current_user.get_id())
+	tags = db.diary.distinct("diary_tag", {"author_id": user_id})
 	return render_template('text_editor.html', tags=tags)
 
 @app.route('/books', methods=['GET'])
@@ -119,7 +120,8 @@ def delete_entry(entry_id):
 @login_required
 def edit_entry(entry_id):
 	entry = db.diary.find_one({"_id": ObjectId(entry_id)})
-	tags = db.diary.distinct("diary_tag")
+	user_id = ObjectId(current_user.get_id())
+	tags = db.diary.distinct("diary_tag", {"author_id": user_id})
 	if not entry:
 		flash("Diary entry not found!", "danger")
 		return redirect(url_for("home"))
@@ -133,6 +135,8 @@ def edit_entry(entry_id):
 def save_diary(entry_id):
 	title = request.form.get('diary_title')
 	tag = request.form.get('diary_tag')
+	if not tag:
+		tag = "None"
 	content = request.form.get('diary_content')
 	create_date = datetime.now()
 	author_id = current_user.get_id()

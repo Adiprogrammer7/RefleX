@@ -112,3 +112,7 @@
 .diary-card:hover {
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
+
+.box_shadow{
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}

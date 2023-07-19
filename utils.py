@@ -1,7 +1,10 @@
 from bs4 import BeautifulSoup
 from bson import ObjectId
-from transformers import pipeline
+from transformers import RobertaTokenizerFast, TFRobertaForSequenceClassification, pipeline
 from datetime import datetime
+
+tokenizer = RobertaTokenizerFast.from_pretrained("arpanghoshal/EmoRoBERTa")
+model = TFRobertaForSequenceClassification.from_pretrained("arpanghoshal/EmoRoBERTa")
 
 # to extract plaintext from formatted text with html tags
 def extract_plaintext(html_content):
@@ -21,9 +24,9 @@ def save_books(db, recommended_books, author_id):
 		db.books.insert_many(new_books, ordered=False)
 
 
-# to extract emotion from text
+# Function to extract emotion from text
 def extract_emotion(text):
-	emotion = pipeline("text-classification", model="arpanghoshal/EmoRoBERTa")
+	emotion = pipeline('sentiment-analysis', model='arpanghoshal/EmoRoBERTa')
 	emotion_labels = emotion(text)
 	print(emotion_labels)
 	return emotion_labels[0]['label']

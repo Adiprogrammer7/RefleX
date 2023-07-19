@@ -10,7 +10,7 @@
 			</div>
 
 			<div class="col-md-4">
-				<div class="form-group mt-4">
+				<div class="form-group mt-4 box_shadow">
 					<select class="form-control" id="filterType" name="filter_type" onchange="toggleFilterOptions()">
 						<option value="" disabled selected>Filter By</option>
 						<option value="tag">Tag</option>
@@ -21,7 +21,7 @@
 		
 			<div class="col-md-4">
 				<div id="tagFilter" style="display: none;">
-					<div class="form-group mt-4">
+					<div class="form-group mt-4 box_shadow">
 						<select class="form-control" name="tag" onchange="submitForm()">
 							<option value="" disabled selected>Select Tag</option>
 							{% for tag in tags %}
@@ -31,7 +31,7 @@
 					</div>
 				</div>
 				<div id="emotionFilter" style="display: none;">
-					<div class="form-group mt-4">
+					<div class="form-group mt-4 box_shadow">
 						<select class="form-control" name="emotion" onchange="submitForm()">
 							<option value="" disabled selected>Select Emotion</option>
 							{% for emotion in emotions %}

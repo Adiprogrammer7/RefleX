@@ -1,6 +1,3 @@
-- book visit link and add to favourite
-- sentiment analysis
-- time framed visualizations
+- book add to favourite
 - split code into modules and packages
-- include max results customization from search query of book api
-- suggesting top rating books 
+- model performance
