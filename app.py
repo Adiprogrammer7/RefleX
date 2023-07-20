@@ -62,8 +62,13 @@ def home():
 		elif filter_type == 'emotion':
 			entries = db.diary.find({'emotion': filter_value})
 		
-	else:
-		entries = db.diary.find({'author_id': user_id})
+	elif request.method == 'GET':
+		# Handle search form submissions
+		search_keyword = request.args.get('search_keyword')
+		if search_keyword:
+			entries = search_entries_by_keyword(db, search_keyword)
+		else:
+			entries = db.diary.find({'author_id': user_id})
 
 	return render_template('index.html', entries=entries, tags=tags, emotions=emotions)
 

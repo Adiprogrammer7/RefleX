@@ -1,10 +1,34 @@
 from bs4 import BeautifulSoup
 from bson import ObjectId
-from transformers import RobertaTokenizerFast, TFRobertaForSequenceClassification, pipeline
+from bson.regex import Regex
+import re
 from datetime import datetime
+from transformers import pipeline
 
-tokenizer = RobertaTokenizerFast.from_pretrained("arpanghoshal/EmoRoBERTa")
-model = TFRobertaForSequenceClassification.from_pretrained("arpanghoshal/EmoRoBERTa")
+# Load the previously trained model for prediction
+emotion_model = pipeline("text-classification", model="arpanghoshal/EmoRoBERTa")
+
+
+def search_entries_by_keyword(db, keyword):
+	# Build the regex pattern with case-insensitivity
+	regex_pattern = f"(?i){re.escape(keyword)}"
+
+	# Use the $match stage in the aggregation pipeline to filter entries
+	pipeline = [
+		{
+			"$match": {
+				"$or": [
+					{"diary_title": {"$regex": Regex(regex_pattern)}},
+					{"diary_content": {"$regex": Regex(regex_pattern)}},
+				]
+			}
+		}
+	]
+
+	# Execute the aggregation pipeline and retrieve the matching entries
+	matching_entries = list(db.diary.aggregate(pipeline))
+	return matching_entries
+
 
 # to extract plaintext from formatted text with html tags
 def extract_plaintext(html_content):
@@ -26,8 +50,7 @@ def save_books(db, recommended_books, author_id):
 
 # Function to extract emotion from text
 def extract_emotion(text):
-	emotion = pipeline('sentiment-analysis', model='arpanghoshal/EmoRoBERTa')
-	emotion_labels = emotion(text)
+	emotion_labels = emotion_model(text)
 	print(emotion_labels)
 	return emotion_labels[0]['label']
 

@@ -42,8 +42,18 @@
 				</div>
 			</div>
 		</div>
-		
 	</form>
+
+	<div class="row g-5">
+		<div class="col-md-6">
+			<form method="GET" action="{{ url_for('home') }}" class="mb-4">
+				<div class="input-group">
+					<input type="text" class="form-control" name="search_keyword" placeholder="Search for diary entries...">
+					<button type="submit" class="btn btn-primary">Search</button>
+				</div>
+			</form>
+		</div>
+	</div>
 
 	{% if entries %}
 		<div class="mt-5">
