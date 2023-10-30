@@ -7,7 +7,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 import os
 from forms import RegistrationForm, LoginForm
-from recommender import BookRecommender
+from recommender import Recommender
 from utils import *
 
 # Load environment variables from .env file and access them
@@ -91,6 +91,19 @@ def books(book_id=None):
 		user_id = ObjectId(current_user.get_id())
 		books = db.books.find({'author_id': user_id})
 		return render_template('books.html', books=books)
+	
+
+@app.route('/movies', methods=['GET'])
+@app.route('/movies/<movie_id>', methods=['GET'])
+@login_required
+def movies(movie_id=None):
+	if movie_id:
+		movie = db.movies.find_one({'_id': ObjectId(movie_id)})
+		return render_template('movie_details.html', movie=movie)
+	else:
+		user_id = ObjectId(current_user.get_id())
+		movies = db.movies.find({'author_id': user_id})
+		return render_template('movies.html', movies=movies)
 
 
 @app.route("/entry/<entry_id>")
@@ -151,12 +164,14 @@ def save_diary(entry_id):
 	emotion = extract_emotion(plaintext)
 
 	# generate book recommendations and save in db
-	book_recommender = BookRecommender(plaintext, alsoPhrases=True)
-	book_recommender.fetch_results()
-	print(book_recommender.keywords)
-	print(book_recommender.phrases)
-	print(book_recommender.entities)
-	save_books(db, book_recommender.books, author_id)
+	recommender = Recommender(plaintext, alsoPhrases=True)
+	recommender.fetch_results()
+	print(recommender.keywords)
+	print(recommender.phrases)
+	print(recommender.entities)
+	save_books(db, recommender.books, author_id)
+	save_movies(db, recommender.movies, author_id)
+
 
 	# Update existing entry
 	if entry_id:
@@ -184,59 +199,61 @@ def save_diary(entry_id):
 @login_required
 def plot():
 	if request.method == "POST":
-		start_date = request.form.get('start_date')
-		end_date = request.form.get('end_date')
-		start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
-		end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+		start_date = datetime.strptime(request.form.get('start_date'), '%Y-%m-%d').date()
+		end_date = datetime.strptime(request.form.get('end_date'), '%Y-%m-%d').date()
 		author_id = ObjectId(current_user.get_id())
 		counts, emotions = fetch_data(db, author_id, start_date, end_date)
 		return render_template('plot.html', counts=counts, emotions=emotions)
 
 	return render_template('plot.html')
 
-@app.route("/register", methods=['GET', 'POST'])
+@app.route("/register_user", methods=['GET', 'POST'])
 def register():
-	if current_user.is_authenticated:
-		return redirect(url_for('home'))
-	form = RegistrationForm(db) # Passing the db object to the form
-	if form.validate_on_submit():
-		# encrypting the password
-		hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-		print(hashed_password)
-		# to insert the user
-		new_user = {
-			'email': form.email.data,
-			'username': form.username.data,
-			'password': hashed_password
-		}
-		db.user.insert_one(new_user) #inserting in 'user' collection
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+    
+    registration_form = RegistrationForm(db)  # Passing the database object to the form
+    
+    if registration_form.validate_on_submit():
+        # Encrypting the password
+        hashed_pw = bcrypt.generate_password_hash(registration_form.password.data).decode('utf-8')
+        
+        # Creating a new user entry
+        new_user_entry = {
+            'email': registration_form.email.data,
+            'username': registration_form.username.data,
+            'password': hashed_pw
+        }
+        db.user.insert_one(new_user_entry)  # Inserting into the 'user' collection
+        
+        flash(f"Account has been created for '{registration_form.username.data}'!", "success")
+        return redirect(url_for('home'))
+    
+    return render_template('register.html', form=registration_form)
 
-		flash(f"Account has been created for '{form.username.data}'!", "success")
-		return redirect(url_for('home'))
-	return render_template('register.html', form=form)
 
-@app.route("/login", methods=['GET', 'POST'])
+@app.route("/login_user", methods=['GET', 'POST'])
 def login():
 	if current_user.is_authenticated:
 		return redirect(url_for('home'))
-	form = LoginForm()
-	if form.validate_on_submit():
-		user = db.user.find_one({'username': form.username.data})
-		if user and bcrypt.check_password_hash(user['password'], form.password.data):
+	login_form = LoginForm()
+	if login_form.validate_on_submit():
+		user = db.user.find_one({'username': login_form.username.data})
+		if user and bcrypt.check_password_hash(user['password'], login_form.password.data):
 			# Create a User object from the retrieved data
 			user_obj = User(user['_id'], user['username'], user['email'])
-			login_user(user_obj, remember=form.remember.data)  # Login the user
+			login_user(user_obj, remember=login_form.remember.data)  # Login the user
 			flash('You have been logged in!', 'success')
 			return redirect(url_for('home'))
 		else:
-			flash('Login Unsuccessful. Please check username and password', 'danger')
-	return render_template('login.html', form=form)
+			flash('Login Failed. Please check username and password', 'danger')
+	return render_template('login.html', form=login_form)
 
-@app.route("/logout")
+@app.route("/logout_user")
 @login_required
 def logout():
 	logout_user()  
-	flash('You have been logged out!', 'success')
+	flash('Logged out!', 'success')
 	return redirect(url_for('login'))
 
 if __name__ == '__main__':

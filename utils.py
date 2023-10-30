@@ -8,7 +8,6 @@ from transformers import pipeline
 # Load the previously trained model for prediction
 emotion_model = pipeline("text-classification", model="arpanghoshal/EmoRoBERTa")
 
-
 def search_entries_by_keyword(db, keyword):
 	# Build the regex pattern with case-insensitivity
 	regex_pattern = f"(?i){re.escape(keyword)}"
@@ -46,6 +45,15 @@ def save_books(db, recommended_books, author_id):
 		for book in new_books:
 			book['author_id'] = ObjectId(author_id)
 		db.books.insert_many(new_books, ordered=False)
+
+def save_movies(db, recommended_movies, author_id):
+	existing_movies = [movie['movie_id'] for movie in db.movies.find({'author_id': ObjectId(author_id)}, {'movie_id': 1})]
+	new_movies = [movie for movie in recommended_movies if movie['movie_id'] not in existing_movies]
+
+	if new_movies:
+		for movie in new_movies[:5]:
+			movie['author_id'] = ObjectId(author_id)
+		db.movies.insert_many(new_movies, ordered=False)
 
 
 # Function to extract emotion from text

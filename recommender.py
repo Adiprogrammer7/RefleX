@@ -7,8 +7,8 @@ import spacy
 from rake_nltk import Rake
 import requests
 
-class BookRecommender:
-	def __init__(self, content, max_count=5, alsoPhrases=True, api_url=r"https://www.googleapis.com/books/v1/volumes?q="):
+class Recommender:
+	def __init__(self, content, max_count=5, alsoPhrases=False, api_url=r"https://www.googleapis.com/books/v1/volumes?q="):
 		self.content = content
 		self.max_count = max_count
 		self.alsoPhrases = alsoPhrases
@@ -20,6 +20,7 @@ class BookRecommender:
 		self.entities = None
 		self.necessary_fields = ["title", "authors", "description", "printType", "pageCount", "categories", "averageRating", "imageLinks", "canonicalVolumeLink"]
 		self.books = []
+		self.movies = []
 
 
 	def preprocess_content(self):
@@ -77,7 +78,7 @@ class BookRecommender:
 
 
 	def extract_book_data(self, data):
-		if data['totalItems'] != 0:
+		if data['totalItems']:
 			# to take only required fields from book api
 			for item in data["items"]:
 				new_item = {}
@@ -96,13 +97,37 @@ class BookRecommender:
 		else:
 			print("No book results!")
 
+	def extract_movies_data(self, data):
+		print(data)
+		headers = {
+			"accept": "application/json",
+			"Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwMDc2MmM2ZDQ3MTg0YjM2YjhkOWRiMTQ1ZjYwOGUyNyIsInN1YiI6IjY1M2U2OTU1NTA3MzNjMDBmZjRhYWEwYyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.raAC-HZlt_S0xKUDRTfK1571pRZs9k7bVEZC_51wOM8"
+		}
+		for each_keyword in data:
+			url = "https://api.themoviedb.org/3/search/movie?query=" + each_keyword
+			response = requests.get(url, headers=headers)
+			response = response.json()
+			movies = response["results"]
+			for movie in movies:
+				if movie["vote_average"] > 6:
+					formatted_movie = {
+						"movie_id": movie["id"],
+						"original_title": movie["original_title"],
+						"overview": movie["overview"],
+						"poster_path": movie["poster_path"],
+						"release_date": movie["release_date"],
+						"vote_average": movie["vote_average"]
+					}
+					self.movies.append(formatted_movie)
+
 
 	def fetch_results(self):
 		self.preprocess_content()
 		result = ""
-		result += self.extract_named_entites()
-		result += " "
 		result += self.extract_keywords()
+		self.extract_movies_data(result)
+		result += " "
+		result += self.extract_named_entites()
 		result += " "
 		if self.alsoPhrases:
 			result += self.extract_phrases()
@@ -111,6 +136,4 @@ class BookRecommender:
 		r = requests.get(self.api_url + self.query)
 		data = r.json()
 		self.extract_book_data(data)
-		# # just to print json formatted self.books list for debugging
-		# formatted_data = json.dumps(self.books, indent=4)
-		# print(formatted_data)
+
