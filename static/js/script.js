@@ -60,3 +60,15 @@ function toggleFilterOptions() {
 function submitForm() {
 	document.getElementById("filterForm").submit();
 }
+
+// // JavaScript to limit the number of checked checkboxes
+// const form = document.getElementById('profileForm');
+// const checkboxes = form.getElementsByClassName('interest-checkbox');
+
+// form.addEventListener('submit', function (event) {
+// 	const checkedCheckboxes = Array.from(checkboxes).filter(checkbox => checkbox.checked);
+// 	if (checkedCheckboxes.length > 5) {
+// 		alert('Please select a maximum of 5 interests.');
+// 		event.preventDefault();
+// 	}
+// });

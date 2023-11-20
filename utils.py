@@ -96,3 +96,27 @@ def fetch_data(db, author_id, start_date, end_date):
 	print("From fetch data of emotions:")
 	print(counts, emotions)
 	return counts, emotions
+
+# general interests for user to choose from during profile and as tags during writing diary entry
+interests = [
+	"Coding",
+	"Study",
+	"Space",
+	"Art",
+	"Reading",
+	"Music",
+	"Travel",
+	"Fitness",
+	"Cooking",
+	"Photography",
+	"Gaming",
+	"Writing",
+	"Technology",
+	"Nature",
+	"Movies",
+	"Sports",
+	"Science",
+	"Fashion",
+	"History",
+	"DIY Projects"
+]

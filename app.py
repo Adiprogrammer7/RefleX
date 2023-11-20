@@ -77,7 +77,7 @@ def home():
 @login_required
 def write():
 	user_id = ObjectId(current_user.get_id())
-	tags = db.diary.distinct("diary_tag", {"author_id": user_id})
+	tags = db.diary.distinct("diary_tag", {"author_id": user_id}) + interests
 	return render_template('text_editor.html', tags=tags)
 
 @app.route('/books', methods=['GET'])
@@ -209,28 +209,54 @@ def plot():
 
 @app.route("/register_user", methods=['GET', 'POST'])
 def register():
-    if current_user.is_authenticated:
-        return redirect(url_for('home'))
-    
-    registration_form = RegistrationForm(db)  # Passing the database object to the form
-    
-    if registration_form.validate_on_submit():
-        # Encrypting the password
-        hashed_pw = bcrypt.generate_password_hash(registration_form.password.data).decode('utf-8')
-        
-        # Creating a new user entry
-        new_user_entry = {
-            'email': registration_form.email.data,
-            'username': registration_form.username.data,
-            'password': hashed_pw
-        }
-        db.user.insert_one(new_user_entry)  # Inserting into the 'user' collection
-        
-        flash(f"Account has been created for '{registration_form.username.data}'!", "success")
-        return redirect(url_for('home'))
-    
-    return render_template('register.html', form=registration_form)
+	if current_user.is_authenticated:
+		return redirect(url_for('home'))
+	
+	registration_form = RegistrationForm(db)  # Passing the database object to the form
+	
+	if registration_form.validate_on_submit():
+		# Encrypting the password
+		hashed_pw = bcrypt.generate_password_hash(registration_form.password.data).decode('utf-8')
+		
+		# Creating a new user entry
+		new_user_entry = {
+			'email': registration_form.email.data,
+			'username': registration_form.username.data,
+			'password': hashed_pw
+		}
+		new_user = db.user.insert_one(new_user_entry)  # Inserting into the 'user' collection
+		new_user_id = new_user.inserted_id
+		user_obj = User(new_user_id, new_user_entry['username'], new_user_entry['email'])
+		login_user(user_obj)
+		flash(f"Account has been created for '{registration_form.username.data}'!", "success")
+		return redirect(url_for('create_profile'))
+	
+	return render_template('register.html', form=registration_form)
 
+@app.route("/create_profile", methods=['GET', 'POST'])
+@login_required
+def create_profile():
+	user_id = ObjectId(current_user.get_id())
+	user_data = db.user.find_one({'_id': user_id})
+	user_interests = user_data.get('interests', [])
+	user_bio = user_data.get('bio', '')
+	print(user_interests, user_bio)
+	if request.method == 'POST':
+		selected_interests = request.form.getlist('interests[]')
+		bio = request.form.get('bio')
+		print("Selected Interests:", selected_interests)
+		print("Bio:", bio)
+		db.user.update_one(
+            {'_id': user_id},
+            {
+                '$set': {
+                    'interests': selected_interests,
+                    'bio': bio
+                }
+            }
+        )
+		return redirect(url_for('home'))
+	return render_template('create_profile.html', interests=interests, user_interests=user_interests, user_bio=user_bio)
 
 @app.route("/login_user", methods=['GET', 'POST'])
 def login():

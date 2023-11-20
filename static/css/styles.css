@@ -116,3 +116,23 @@
 .box_shadow{
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
+
+/* for interests */
+.interest-container {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+}
+
+.interest-tile {
+	border: 1px solid #ccc;
+	border-radius: 8px;
+	padding: 10px;
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+}
+
+.interest-checkbox {
+	margin-right: 8px;
+}
