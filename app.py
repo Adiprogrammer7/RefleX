@@ -123,7 +123,9 @@ def view_entry(entry_id):
 @login_required
 def social_feed():
 	user_id = ObjectId(current_user.get_id())
-	# to also get auther username from author_id
+	user_data = db.user.find_one({'_id': user_id}, {'interests': 1})
+	user_interests = [interest.lower() for interest in user_data.get('interests', [])] if user_data else []
+	print(user_interests)
 	entries = db.diary.aggregate([
 		{
 			'$match': {
@@ -155,9 +157,22 @@ def social_feed():
 				'author_id': 1,
 				'author_username': '$author.username'
 			}
-		}
+		},
+		{
+            '$addFields': {
+                'isInterest': {
+                    '$in': ['$diary_tag', user_interests]
+                }
+            }
+        },
+        {
+            '$sort': {
+                'isInterest': -1
+            }
+        }
 	])
 	return render_template('social_feed.html', entries=entries)
+
 
 @app.route("/change_visibility/<entry_id>")
 @login_required
@@ -211,6 +226,8 @@ def save_diary(entry_id):
 	tag = request.form.get('diary_tag')
 	if not tag:
 		tag = "None"
+	else:
+		tag = tag.lower()
 	content = request.form.get('diary_content')
 	create_date = datetime.now()
 	author_id = current_user.get_id()
@@ -255,8 +272,14 @@ def save_diary(entry_id):
 def view_profile():
 	user_id = ObjectId(current_user.get_id())
 	user = db.user.find_one({"_id": user_id})
-	bio = user['bio']
-	interests = user['interests']
+	try:
+		bio = user['bio']
+	except KeyError:
+		bio = None  #provide a default value
+	try:
+		interests = user['interests']
+	except KeyError:
+		interests = []  #provide a default value
 	return render_template('view_profile.html', bio=bio, interests=interests)
 
 
