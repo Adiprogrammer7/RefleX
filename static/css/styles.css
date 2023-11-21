@@ -136,3 +136,13 @@
 .interest-checkbox {
 	margin-right: 8px;
 }
+
+/* for social feed diary entries */
+.truncated-content {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	/* Number of lines to show */
+	-webkit-box-orient: vertical;
+}

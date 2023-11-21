@@ -119,6 +119,62 @@ def view_entry(entry_id):
 		flash("Diary entry not found.", "danger")
 		return redirect(url_for('home'))
 
+@app.route("/social_feed")
+@login_required
+def social_feed():
+	user_id = ObjectId(current_user.get_id())
+	# to also get auther username from author_id
+	entries = db.diary.aggregate([
+		{
+			'$match': {
+				'visibility': 1,
+				'author_id': {'$ne': user_id}
+			}
+		},
+		{
+			'$lookup': {
+				'from': 'user',  # user collection
+				'localField': 'author_id',
+				'foreignField': '_id',
+				'as': 'author'
+			}
+		},
+		{
+			'$unwind': '$author'
+		},
+		{
+			'$project': {
+				'_id': 1,
+				'diary_title': 1,
+				'diary_tag': 1,
+				'diary_content': 1,
+				'diary_created': 1,
+				'diary_modified': 1,
+				'visibility': 1,
+				'emotion': 1,
+				'author_id': 1,
+				'author_username': '$author.username'
+			}
+		}
+	])
+	return render_template('social_feed.html', entries=entries)
+
+@app.route("/change_visibility/<entry_id>")
+@login_required
+def change_visibility(entry_id):
+	entry = db.diary.find_one({"_id": ObjectId(entry_id)})
+	if not entry:
+		flash("Diary entry not found!", "danger")
+		return redirect(url_for("home"))
+	
+	# to toggle visibility of diary entry
+	visibility_toggle = 0
+	if entry['visibility'] == 0:
+		visibility_toggle = 1
+	
+	db.diary.update_one({"_id": ObjectId(entry['_id'])}, {'$set': {'visibility': visibility_toggle}})
+	flash(f"Visibility of diary entry '{entry['diary_title']}' has been changed!", "warning")
+	return redirect(url_for("home"))
 
 @app.route("/delete_entry/<entry_id>")
 @login_required
@@ -194,6 +250,15 @@ def save_diary(entry_id):
 	
 	return redirect(url_for('home'))
 
+@app.route("/view_profile")
+@login_required
+def view_profile():
+	user_id = ObjectId(current_user.get_id())
+	user = db.user.find_one({"_id": user_id})
+	bio = user['bio']
+	interests = user['interests']
+	return render_template('view_profile.html', bio=bio, interests=interests)
+
 
 @app.route("/plot", methods=['GET', 'POST'])
 @login_required
@@ -233,6 +298,7 @@ def register():
 	
 	return render_template('register.html', form=registration_form)
 
+
 @app.route("/create_profile", methods=['GET', 'POST'])
 @login_required
 def create_profile():
@@ -247,15 +313,15 @@ def create_profile():
 		print("Selected Interests:", selected_interests)
 		print("Bio:", bio)
 		db.user.update_one(
-            {'_id': user_id},
-            {
-                '$set': {
-                    'interests': selected_interests,
-                    'bio': bio
-                }
-            }
-        )
-		return redirect(url_for('home'))
+			{'_id': user_id},
+			{
+				'$set': {
+					'interests': selected_interests,
+					'bio': bio
+				}
+			}
+		)
+		return redirect(url_for('view_profile'))
 	return render_template('create_profile.html', interests=interests, user_interests=user_interests, user_bio=user_bio)
 
 @app.route("/login_user", methods=['GET', 'POST'])
